@@ -52,7 +52,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectContainerException.cs" />
     <Compile Include="IObjectContainer.cs" />
-    <Compile Include="IContainedInstance.cs" />
     <Compile Include="ObjectContainer.cs" />
     <Compile Include="Kernel\ResolutionList.cs" />
     <Compile Include="Kernel\NonDisposableWrapper.cs" />
