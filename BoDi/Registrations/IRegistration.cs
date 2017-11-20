@@ -15,8 +15,10 @@ using BoDi.Kernel;
 
 namespace BoDi.Registrations
 {
-  interface IRegistration
+  public interface IRegistration
   {
+    RegistrationKey Key { get; }
+
     object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath);
   }
 }

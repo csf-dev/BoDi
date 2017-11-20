@@ -15,16 +15,16 @@ using BoDi.Kernel;
 
 namespace BoDi.Registrations
 {
-  class TypeRegistration : IRegistration
+  public class TypeRegistration : Registration
   {
     private readonly Type implementationType;
 
-    public TypeRegistration(Type implementationType)
+    public TypeRegistration(Type implementationType, RegistrationKey key) : base(key)
     {
       this.implementationType = implementationType;
     }
 
-    public object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
     {
       var typeToConstruct = GetTypeToConstruct(keyToResolve);
 

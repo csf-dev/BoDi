@@ -12,22 +12,33 @@
 // DEALINGS IN THE SOFTWARE.
 using System;
 using System.Configuration;
+using BoDi.Config;
 
 namespace BoDi
 {
 
+  // TODO: In a future breaking change, move this type into the BoDi.Config (or similar) namespace.
+  // At present this type cannot be renamed nor may it be moved into another namespace, because these things
+  // form its public API (in the config file).
+
+  public class BoDiConfigurationSection
 #if !BODI_LIMITEDRUNTIME && !BODI_DISABLECONFIGFILESUPPORT
-
-    public class BoDiConfigurationSection : ConfigurationSection
-    {
-        [ConfigurationProperty("", Options = ConfigurationPropertyOptions.IsDefaultCollection)]
-        [ConfigurationCollection(typeof(ContainerRegistrationCollection), AddItemName = "register")]
-        public ContainerRegistrationCollection Registrations
-        {
-            get { return (ContainerRegistrationCollection)this[""]; }
-            set { this[""] = value; }
-        }
-    }
-
+      : ConfigurationSection
 #endif
+  {
+#if !BODI_LIMITEDRUNTIME && !BODI_DISABLECONFIGFILESUPPORT
+    [ConfigurationProperty("", Options = ConfigurationPropertyOptions.IsDefaultCollection)]
+    [ConfigurationCollection(typeof(ContainerRegistrationCollection),
+                             AddItemName = ConfigConstants.RegisterElementName)]
+#endif
+    public ContainerRegistrationCollection Registrations
+    {
+#if !BODI_LIMITEDRUNTIME && !BODI_DISABLECONFIGFILESUPPORT
+      get { return (ContainerRegistrationCollection) this[String.Empty]; }
+      set { this[String.Empty] = value; }
+#else
+      get; set;
+#endif
+    }
+  }
 }

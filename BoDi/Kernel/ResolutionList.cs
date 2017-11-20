@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BoDi.Registrations;
 
 namespace BoDi.Kernel
 {
@@ -21,7 +22,7 @@ namespace BoDi.Kernel
   /// <summary>
   /// A very simple immutable linked list of <see cref="Type"/>.
   /// </summary>
-  class ResolutionList
+  public class ResolutionList
   {
     private readonly RegistrationKey currentRegistrationKey;
     private readonly Type currentResolvedType;

@@ -13,10 +13,10 @@
 using System;
 using System.Diagnostics;
 
-namespace BoDi.Kernel
+namespace BoDi.Registrations
 {
 
-  struct RegistrationKey
+  public struct RegistrationKey
   {
     public readonly Type Type;
     public readonly string Name;

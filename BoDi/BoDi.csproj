@@ -49,26 +49,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContainerRegistrationConfigElement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectContainerException.cs" />
     <Compile Include="IObjectContainer.cs" />
     <Compile Include="IContainedInstance.cs" />
     <Compile Include="ObjectContainer.cs" />
-    <Compile Include="BoDiConfigurationSection.cs" />
-    <Compile Include="ContainerRegistrationCollection.cs" />
     <Compile Include="Kernel\ResolutionList.cs" />
-    <Compile Include="Kernel\RegistrationKey.cs" />
     <Compile Include="Kernel\NonDisposableWrapper.cs" />
     <Compile Include="Registrations\FactoryRegistration.cs" />
     <Compile Include="Registrations\InstanceRegistration.cs" />
     <Compile Include="Registrations\IRegistration.cs" />
     <Compile Include="Registrations\NamedInstanceDictionaryRegistration.cs" />
     <Compile Include="Registrations\TypeRegistration.cs" />
+    <Compile Include="Config\ContainerRegistrationCollection.cs" />
+    <Compile Include="Config\ContainerRegistrationConfigElement.cs" />
+    <Compile Include="Registrations\IProvidesRegistrations.cs" />
+    <Compile Include="Config\ConfigurationTypeRegistrationProvider.cs" />
+    <Compile Include="BoDiConfigurationSection.cs" />
+    <Compile Include="Config\ConfigConstants.cs" />
+    <Compile Include="Registrations\RegistrationKey.cs" />
+    <Compile Include="Registrations\Registration.cs" />
+    <Compile Include="Config\IProvidesTypeRegistrationsFromConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Kernel\" />
     <Folder Include="Registrations\" />
+    <Folder Include="Config\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

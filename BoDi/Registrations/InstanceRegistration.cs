@@ -15,16 +15,16 @@ using BoDi.Kernel;
 
 namespace BoDi.Registrations
 {
-  class InstanceRegistration : IRegistration
+  public class InstanceRegistration : Registration
   {
     private readonly object instance;
 
-    public InstanceRegistration(object instance)
+    public InstanceRegistration(object instance, RegistrationKey key) : base(key)
     {
       this.instance = instance;
     }
 
-    public object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
     {
       return instance;
     }

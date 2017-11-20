@@ -15,16 +15,16 @@ using BoDi.Kernel;
 
 namespace BoDi.Registrations
 {
-  class FactoryRegistration : IRegistration
+  public class FactoryRegistration : Registration
   {
     private readonly Delegate factoryDelegate;
 
-    public FactoryRegistration(Delegate factoryDelegate)
+    public FactoryRegistration(Delegate factoryDelegate, RegistrationKey key) : base(key)
     {
       this.factoryDelegate = factoryDelegate;
     }
 
-    public object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
     {
       //TODO: store result object in pool?
       var obj = container.InvokeFactoryDelegate(factoryDelegate, resolutionPath, keyToResolve);

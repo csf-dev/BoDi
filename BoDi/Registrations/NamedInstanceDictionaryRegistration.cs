@@ -20,9 +20,9 @@ using BoDi.Kernel;
 namespace BoDi.Registrations
 {
 
-  class NamedInstanceDictionaryRegistration : IRegistration
+  public class NamedInstanceDictionaryRegistration : Registration
   {
-    public object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
     {
       var typeToResolve = keyToResolve.Type;
       Debug.Assert(typeToResolve.IsGenericType && typeToResolve.GetGenericTypeDefinition() == typeof(IDictionary<,>));
@@ -50,5 +50,7 @@ namespace BoDi.Registrations
       Debug.Assert(keyType == typeof(string));
       return name;
     }
+
+    public NamedInstanceDictionaryRegistration(RegistrationKey key) : base(key) {}
   }
 }

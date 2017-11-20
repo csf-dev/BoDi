@@ -11,15 +11,15 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-namespace BoDi.Kernel
+namespace BoDi.Config
 {
-  public class NonDisposableWrapper
+  static class ConfigConstants
   {
-    public object Object { get; private set; }
-
-    public NonDisposableWrapper(object obj)
-    {
-      Object = obj;
-    }
+    internal const string 
+      ConfigSectionPath = "boDi",
+      RegisterElementName = "register",
+      NameProperty = "name",
+      ImplementationTypeProperty = "type",
+      ServiceTypeProperty = "as";
   }
 }
