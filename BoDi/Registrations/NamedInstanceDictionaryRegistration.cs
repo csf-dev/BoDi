@@ -15,8 +15,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using BoDi.Kernel;
 
-namespace BoDi.Kernel
+namespace BoDi.Registrations
 {
 
   class NamedInstanceDictionaryRegistration : IRegistration

@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using BoDi.Kernel;
+using BoDi.Registrations;
 
 namespace BoDi
 {

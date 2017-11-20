@@ -59,15 +59,16 @@
     <Compile Include="ContainerRegistrationCollection.cs" />
     <Compile Include="Kernel\ResolutionList.cs" />
     <Compile Include="Kernel\RegistrationKey.cs" />
-    <Compile Include="Kernel\IRegistration.cs" />
-    <Compile Include="Kernel\TypeRegistration.cs" />
-    <Compile Include="Kernel\InstanceRegistration.cs" />
-    <Compile Include="Kernel\FactoryRegistration.cs" />
     <Compile Include="Kernel\NonDisposableWrapper.cs" />
-    <Compile Include="Kernel\NamedInstanceDictionaryRegistration.cs" />
+    <Compile Include="Registrations\FactoryRegistration.cs" />
+    <Compile Include="Registrations\InstanceRegistration.cs" />
+    <Compile Include="Registrations\IRegistration.cs" />
+    <Compile Include="Registrations\NamedInstanceDictionaryRegistration.cs" />
+    <Compile Include="Registrations\TypeRegistration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Kernel\" />
+    <Folder Include="Registrations\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
