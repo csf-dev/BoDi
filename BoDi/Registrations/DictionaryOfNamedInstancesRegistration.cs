@@ -16,13 +16,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using BoDi.Kernel;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
 
-  public class NamedInstanceDictionaryRegistration : Registration
+  public class DictionaryOfNamedInstancesRegistration : Registration
   {
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       var typeToResolve = keyToResolve.Type;
       Debug.Assert(typeToResolve.IsGenericType && typeToResolve.GetGenericTypeDefinition() == typeof(IDictionary<,>));
@@ -51,6 +52,6 @@ namespace BoDi.Registrations
       return name;
     }
 
-    public NamedInstanceDictionaryRegistration(RegistrationKey key) : base(key) {}
+    public DictionaryOfNamedInstancesRegistration(RegistrationKey key) : base(key) {}
   }
 }

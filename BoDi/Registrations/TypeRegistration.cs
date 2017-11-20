@@ -12,6 +12,7 @@
 // DEALINGS IN THE SOFTWARE.
 using System;
 using BoDi.Kernel;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
@@ -24,7 +25,7 @@ namespace BoDi.Registrations
       this.implementationType = implementationType;
     }
 
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       var typeToConstruct = GetTypeToConstruct(keyToResolve);
 
@@ -34,7 +35,7 @@ namespace BoDi.Registrations
       if (obj == null)
       {
         if (typeToConstruct.IsInterface)
-          throw new ObjectContainerException("Interface cannot be resolved: " + keyToResolve, resolutionPath.ToTypeList());
+          throw new ObjectContainerException("Interface cannot be resolved: " + keyToResolve, resolutionPath.GetTypes());
 
         obj = container.CreateObject(typeToConstruct, resolutionPath, keyToResolve);
         container.objectPool.Add(pooledObjectKey, obj);

@@ -20,6 +20,7 @@ using System.Reflection;
 using BoDi.Kernel;
 using BoDi.Registrations;
 using BoDi.Config;
+using BoDi.Resolution;
 
 namespace BoDi
 {
@@ -28,21 +29,27 @@ namespace BoDi
   {
     private const string REGISTERED_NAME_PARAMETER_NAME = "registeredName";
 
-    private bool isDisposed = false;
-    private readonly ObjectContainer baseContainer;
-    internal readonly Dictionary<RegistrationKey, IRegistration> registrations = new Dictionary<RegistrationKey, IRegistration>();
+    bool isDisposed = false;
+    readonly ObjectContainer baseContainer;
+    readonly IRegistry registry;
     internal readonly Dictionary<RegistrationKey, object> resolvedObjects = new Dictionary<RegistrationKey, object>();
     internal readonly Dictionary<RegistrationKey, object> objectPool = new Dictionary<RegistrationKey, object>();
 
     public event Action<object> ObjectCreated;
 
-    public ObjectContainer(IObjectContainer baseContainer = null)
+    public ObjectContainer(IObjectContainer baseContainer)
     {
       if(baseContainer != null && !(baseContainer is ObjectContainer))
-        throw new ArgumentException("Base container must be an ObjectContainer", "baseContainer");
+        throw new ArgumentException("Base container must be an ObjectContainer", nameof(baseContainer));
 
       this.baseContainer = (ObjectContainer) baseContainer;
       RegisterInstanceAs<IObjectContainer>(this);
+    }
+
+    public ObjectContainer(IObjectContainer baseContainer = null,
+                           IRegistry registry = null) : this(baseContainer)
+    {
+      registry = registry?? new Registry();
     }
 
     public void RegisterTypeAs<TInterface>(Type implementationType, string name = null) where TInterface : class
@@ -96,14 +103,14 @@ namespace BoDi
 
     private void AddRegistration(RegistrationKey key, IRegistration registration)
     {
-      registrations[key] = registration;
+      registry.Add(registration);
 
       if(key.Name != null)
       {
         var dictKey = CreateNamedInstanceDictionaryKey(key.Type);
         if(!registrations.ContainsKey(dictKey))
         {
-          registrations[dictKey] = new NamedInstanceDictionaryRegistration(key);
+          registrations[dictKey] = new DictionaryOfNamedInstancesRegistration(key);
         }
       }
     }
@@ -248,7 +255,7 @@ namespace BoDi
 
     public object Resolve(Type typeToResolve, string name = null)
     {
-      return Resolve(typeToResolve, new ResolutionList(), name);
+      return Resolve(typeToResolve, new ResolutionPath(), name);
     }
 
     public IEnumerable<T> ResolveAll<T>() where T : class
@@ -258,7 +265,7 @@ namespace BoDi
           .Select(x => Resolve(x.Key.Type, x.Key.Name) as T);
     }
 
-    private object Resolve(Type typeToResolve, ResolutionList resolutionPath, string name)
+    private object Resolve(Type typeToResolve, ResolutionPath resolutionPath, string name)
     {
       AssertNotDisposed();
 
@@ -293,7 +300,7 @@ namespace BoDi
       // if there was no named registration, we still return an empty dictionary
       if(IsDefaultNamedInstanceDictionaryKey(keyToResolve))
       {
-        return new KeyValuePair<ObjectContainer, IRegistration>(this, new NamedInstanceDictionaryRegistration(keyToResolve));
+        return new KeyValuePair<ObjectContainer, IRegistration>(this, new DictionaryOfNamedInstancesRegistration(keyToResolve));
       }
 
       return null;
@@ -337,20 +344,20 @@ namespace BoDi
       return true;
     }
 
-    private object ResolveObject(RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    private object ResolveObject(RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       if(keyToResolve.Type.IsPrimitive || keyToResolve.Type == typeof(string) || keyToResolve.Type.IsValueType)
-        throw new ObjectContainerException("Primitive types or structs cannot be resolved: " + keyToResolve.Type.FullName, resolutionPath.ToTypeList());
+        throw new ObjectContainerException("Primitive types or structs cannot be resolved: " + keyToResolve.Type.FullName, resolutionPath.GetTypes());
 
       var registrationResult = GetRegistrationResult(keyToResolve) ??
   new KeyValuePair<ObjectContainer, IRegistration>(this, new TypeRegistration(keyToResolve.Type, keyToResolve));
 
       var resolutionPathForResolve = registrationResult.Key == this ?
-          resolutionPath : new ResolutionList();
+                                                       resolutionPath : new ResolutionPath();
       return registrationResult.Value.Resolve(registrationResult.Key, keyToResolve, resolutionPathForResolve);
     }
 
-    internal object CreateObject(Type type, ResolutionList resolutionPath, RegistrationKey keyToResolve)
+    internal object CreateObject(Type type, ResolutionPath resolutionPath, RegistrationKey keyToResolve)
     {
       var ctors = type.GetConstructors();
       if(ctors.Length == 0)
@@ -366,14 +373,14 @@ namespace BoDi
       {
         ConstructorInfo ctor = maxParamCountCtors[0];
         if(resolutionPath.Contains(keyToResolve))
-          throw new ObjectContainerException("Circular dependency found! " + type.FullName, resolutionPath.ToTypeList());
+          throw new ObjectContainerException("Circular dependency found! " + type.FullName, resolutionPath.GetTypes());
 
-        var args = ResolveArguments(ctor.GetParameters(), keyToResolve, resolutionPath.AddToEnd(keyToResolve, type));
+        var args = ResolveArguments(ctor.GetParameters(), keyToResolve, resolutionPath.CreateChild(keyToResolve, type));
         obj = ctor.Invoke(args);
       }
       else
       {
-        throw new ObjectContainerException("Multiple public constructors with same maximum parameter count are not supported! " + type.FullName, resolutionPath.ToTypeList());
+        throw new ObjectContainerException("Multiple public constructors with same maximum parameter count are not supported! " + type.FullName, resolutionPath.GetTypes());
       }
 
       OnObjectCreated(obj);
@@ -388,16 +395,16 @@ namespace BoDi
         eventHandler(obj);
     }
 
-    internal object InvokeFactoryDelegate(Delegate factoryDelegate, ResolutionList resolutionPath, RegistrationKey keyToResolve)
+    internal object InvokeFactoryDelegate(Delegate factoryDelegate, ResolutionPath resolutionPath, RegistrationKey keyToResolve)
     {
       if(resolutionPath.Contains(keyToResolve))
-        throw new ObjectContainerException("Circular dependency found! " + factoryDelegate.ToString(), resolutionPath.ToTypeList());
+        throw new ObjectContainerException("Circular dependency found! " + factoryDelegate.ToString(), resolutionPath.GetTypes());
 
-      var args = ResolveArguments(factoryDelegate.Method.GetParameters(), keyToResolve, resolutionPath.AddToEnd(keyToResolve, null));
+      var args = ResolveArguments(factoryDelegate.Method.GetParameters(), keyToResolve, resolutionPath.CreateChild(keyToResolve, null));
       return factoryDelegate.DynamicInvoke(args);
     }
 
-    private object[] ResolveArguments(IEnumerable<ParameterInfo> parameters, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    private object[] ResolveArguments(IEnumerable<ParameterInfo> parameters, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       return parameters.Select(p => IsRegisteredNameParameter(p) ? ResolveRegisteredName(keyToResolve) : Resolve(p.ParameterType, resolutionPath, null)).ToArray();
     }
@@ -417,7 +424,7 @@ namespace BoDi
     {
       return string.Join(Environment.NewLine,
           registrations
-              .Where(r => !(r.Value is NamedInstanceDictionaryRegistration))
+              .Where(r => !(r.Value is DictionaryOfNamedInstancesRegistration))
               .Select(r => string.Format("{0} -> {1}", r.Key, (r.Key.Type == typeof(IObjectContainer) && r.Key.Name == null) ? "<self>" : r.Value.ToString())));
     }
 

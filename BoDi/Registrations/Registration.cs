@@ -12,6 +12,7 @@
 // DEALINGS IN THE SOFTWARE.
 using System;
 using BoDi.Kernel;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
@@ -21,7 +22,7 @@ namespace BoDi.Registrations
 
     public virtual RegistrationKey Key => key;
 
-    public abstract object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath);
+    public abstract object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath);
 
     public Registration(RegistrationKey key)
     {

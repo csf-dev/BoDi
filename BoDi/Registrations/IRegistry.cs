@@ -11,25 +11,20 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using BoDi.Kernel;
-using BoDi.Resolution;
+using System.Collections.Generic;
 
 namespace BoDi.Registrations
 {
-  public class FactoryRegistration : Registration
+  public interface IRegistry
   {
-    private readonly Delegate factoryDelegate;
+    void Add(IRegistration registration);
 
-    public FactoryRegistration(Delegate factoryDelegate, RegistrationKey key) : base(key)
-    {
-      this.factoryDelegate = factoryDelegate;
-    }
+    bool HasRegistration(RegistrationKey key);
 
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
-    {
-      //TODO: store result object in pool?
-      var obj = container.InvokeFactoryDelegate(factoryDelegate, resolutionPath, keyToResolve);
-      return obj;
-    }
+    IRegistration Get(RegistrationKey key);
+
+    void Remove(RegistrationKey key);
+
+    IReadOnlyCollection<IRegistration> GetAll();
   }
 }
