@@ -73,6 +73,10 @@
     <Compile Include="Registrations\IRegistrationFactory.cs" />
     <Compile Include="Resolution\IResolver.cs" />
     <Compile Include="Resolution\ResolutionPath.cs" />
+    <Compile Include="Resolution\OwnedRegistration.cs" />
+    <Compile Include="Resolution\Resolver.cs" />
+    <Compile Include="Registrations\NamedInstanceDictionaryRegistryProxy.cs" />
+    <Compile Include="Registrations\RegistrationFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Kernel\" />

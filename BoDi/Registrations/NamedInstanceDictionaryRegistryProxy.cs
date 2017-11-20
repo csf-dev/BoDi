@@ -12,20 +12,22 @@
 // DEALINGS IN THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace BoDi.Registrations
 {
-  public class Registry : IRegistry
+  public class NamedInstanceDictionaryRegistryProxy : IRegistry
   {
-    readonly Dictionary<RegistrationKey,IRegistration> registrations;
+    readonly IRegistry proxiedInstance;
+    readonly IRegistrationFactory registrationFactory;
 
     public void Add(IRegistration registration)
     {
-      if(registration == null)
-        throw new ArgumentNullException(nameof(registration));
+      proxiedInstance.Add(registration);
 
-      registrations[registration.Key] = registration;
+      if(registration.Key.Name != null)
+      {
+        AddNamedInstanceDictionaryRegistration(registration.Key);
+      }
     }
 
     public void AddIfNotExists(IRegistration registration)
@@ -35,50 +37,51 @@ namespace BoDi.Registrations
 
       if(!HasRegistration(registration.Key))
       {
-        registrations[registration.Key] = registration;
+        Add(registration);
       }
+    }
+
+    void AddNamedInstanceDictionaryRegistration(RegistrationKey key)
+    {
+      var registration = registrationFactory.CreateDictionaryOfNamesToImplementationTypes(key);
+      proxiedInstance.AddIfNotExists(registration);
     }
 
     public IRegistration Get(RegistrationKey key)
     {
-      IRegistration output;
-      if(registrations.TryGetValue(key, out output))
-        return output;
-
-      return null;
+      return proxiedInstance.Get(key);
     }
 
     public IReadOnlyCollection<IRegistration> GetAll()
     {
-      return registrations.Values.ToArray();
+      return proxiedInstance.GetAll();
     }
 
     public IReadOnlyCollection<IRegistration> GetAll(Type ofType)
     {
-      if(ofType == null)
-        throw new ArgumentNullException(nameof(ofType));
-      
-      return GetAll().Where(x => x.Key.Type == ofType).ToArray();
+      return proxiedInstance.GetAll(ofType);
     }
 
     public bool HasRegistration(RegistrationKey key)
     {
-      return registrations.ContainsKey(key);
+      return proxiedInstance.HasRegistration(key);
     }
 
     public void Remove(RegistrationKey key)
     {
-      registrations.Remove(key);
+      proxiedInstance.Remove(key);
     }
 
     public void RemoveAll()
     {
-      registrations.Clear();
+      proxiedInstance.RemoveAll();
     }
 
-    public Registry()
+    public NamedInstanceDictionaryRegistryProxy(IRegistry proxiedInstance = null,
+                                                IRegistrationFactory registrationFactory = null)
     {
-      registrations = new Dictionary<RegistrationKey, IRegistration>();
+      this.proxiedInstance = proxiedInstance?? new Registry();
+      this.registrationFactory = registrationFactory?? new RegistrationFactory();
     }
   }
 }

@@ -11,26 +11,25 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using System.Collections.Generic;
+using BoDi.Registrations;
 
-namespace BoDi.Registrations
+namespace BoDi.Resolution
 {
-  public interface IRegistry
+  public class OwnedRegistration
   {
-    void Add(IRegistration registration);
+    public IObjectContainer Owner { get; private set; }
 
-    void AddIfNotExists(IRegistration registration);
+    public IRegistration Registration { get; private set; }
 
-    bool HasRegistration(RegistrationKey key);
-
-    IRegistration Get(RegistrationKey key);
-
-    void Remove(RegistrationKey key);
-
-    void RemoveAll();
-
-    IReadOnlyCollection<IRegistration> GetAll();
-
-    IReadOnlyCollection<IRegistration> GetAll(Type ofType);
+    public OwnedRegistration(IObjectContainer owner, IRegistration registration)
+    {
+      if(owner == null)
+        throw new ArgumentNullException(nameof(owner));
+      if(registration == null)
+        throw new ArgumentNullException(nameof(registration));
+      
+      Owner = owner;
+      Registration = registration;
+    }
   }
 }

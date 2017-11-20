@@ -33,6 +33,8 @@ namespace BoDi.Registrations
 
     IRegistration CreateFromFactory(Delegate factory, Type asType, string name = null);
 
-    IRegistration CreateDictionaryOfNamesToImplementationTypes(Delegate factory, Type asType, string name = null);
+    IRegistration CreateDictionaryOfNamesToImplementationTypes(RegistrationKey originalRegistrationKey);
+
+    RegistrationKey CreateDictionaryOfNamedInstancesRegistrationKey(Type asType);
   }
 }

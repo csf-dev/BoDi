@@ -11,6 +11,8 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using BoDi.Kernel;
 using BoDi.Resolution;
 
@@ -22,6 +24,8 @@ namespace BoDi.Registrations
 
     public TypeRegistration(Type implementationType, RegistrationKey key) : base(key)
     {
+      AssertValid(implementationType, key.Type);
+
       this.implementationType = implementationType;
     }
 
@@ -44,6 +48,12 @@ namespace BoDi.Registrations
       return obj;
     }
 
+    void AssertValid(Type concreteType, Type asType)
+    {
+      if(!IsValid(concreteType, asType))
+        throw new InvalidOperationException("type mapping is not valid");
+    }
+
     private Type GetTypeToConstruct(RegistrationKey keyToResolve)
     {
       var targetType = implementationType;
@@ -59,5 +69,33 @@ namespace BoDi.Registrations
     {
       return "Type: " + implementationType.FullName;
     }
+
+    public static bool IsValid(Type concreteType, Type asType)
+    {
+      if(asType == null) return false;
+      if(concreteType == null) return false;
+
+      if(asType.IsAssignableFrom(concreteType))
+        return true;
+
+      if(asType.IsGenericTypeDefinition && concreteType.IsGenericTypeDefinition)
+      {
+        var baseTypes = GetBaseTypes(concreteType).ToArray();
+        return baseTypes.Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == asType);
+      }
+
+      return false;
+    }
+
+    static IEnumerable<Type> GetBaseTypes(Type type)
+    {
+      if(type.BaseType == null) return type.GetInterfaces();
+
+      return Enumerable.Repeat(type.BaseType, 1)
+                       .Concat(type.GetInterfaces())
+                       .Concat(type.GetInterfaces().SelectMany(GetBaseTypes))
+                       .Concat(GetBaseTypes(type.BaseType));
+    }
+
   }
 }

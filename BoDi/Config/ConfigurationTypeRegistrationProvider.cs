@@ -21,6 +21,8 @@ namespace BoDi.Config
 {
   public class ConfigurationTypeRegistrationProvider : IProvidesRegistrations, IProvidesTypeRegistrationsFromConfiguration
   {
+    readonly IRegistrationFactory registrationFactory;
+
     public virtual IReadOnlyList<IRegistration> GetRegistrations()
     {
       var section = GetConfigSection();
@@ -32,16 +34,10 @@ namespace BoDi.Config
 
     public virtual IReadOnlyList<IRegistration> GetRegistrations(ContainerRegistrationCollection registrations)
     {
-      return registrations.GetElements().Select(x => GetRegistration(x)).ToArray();
-    }
-
-    IRegistration GetRegistration(ContainerRegistrationConfigElement element)
-    {
-      var interfaceType = Type.GetType(element.Interface, true);
-      var implementationType = Type.GetType(element.Implementation, true);
-      var name = String.IsNullOrEmpty(element.Name) ? null : element.Name;
-
-      return new TypeRegistration(implementationType, new RegistrationKey(interfaceType, name));
+      return registrations
+        .GetElements()
+        .Select(x => registrationFactory.CreateType(x.Implementation, x.Interface, x.Name))
+        .ToArray();
     }
 
     BoDiConfigurationSection GetConfigSection()
@@ -52,6 +48,11 @@ namespace BoDi.Config
       Debug.WriteLine("System.Configuration is not supported in this build - performing a no-op");
       return null;
 #endif
+    }
+
+    public ConfigurationTypeRegistrationProvider(IRegistrationFactory registrationFactory = null)
+    {
+      this.registrationFactory = registrationFactory?? new RegistrationFactory();
     }
   }
 }
