@@ -27,7 +27,6 @@ namespace BoDi.Resolution
     readonly IReadOnlyList<IObjectContainer> containers;
     readonly IRegistrationFactory registrationFactory;
     readonly ICachesResolvedServices serviceCache;
-    readonly IPoolsServiceInstances instancePool;
 
     public event Action<object> ObjectCreated;
 
@@ -219,7 +218,6 @@ namespace BoDi.Resolution
         if(disposing)
         {
           serviceCache.Dispose();
-          instancePool.Dispose();
         }
 
         isDisposed = true;
@@ -232,19 +230,19 @@ namespace BoDi.Resolution
     }
 
     public Resolver(IReadOnlyList<IObjectContainer> containers,
-                    IRegistrationFactory registrationFactory = null,
-                    ICachesResolvedServices serviceCache = null,
-                    IPoolsServiceInstances instancePool = null)
+                    ICachesResolvedServices serviceCache,
+                    IRegistrationFactory registrationFactory = null)
     {
       if(containers == null)
         throw new ArgumentNullException(nameof(containers));
       if(!containers.Any())
         throw new ArgumentException("Containers collection must not be empty.", nameof(containers));
+      if(serviceCache == null)
+        throw new ArgumentNullException(nameof(serviceCache));
       
       this.containers = containers;
+      this.serviceCache = serviceCache;
       this.registrationFactory = registrationFactory ?? new RegistrationFactory();
-      this.serviceCache = serviceCache ?? new InstanceCache();
-      this.instancePool = instancePool ?? new InstanceCache();
     }
   }
 }

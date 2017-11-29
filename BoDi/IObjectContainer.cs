@@ -25,7 +25,7 @@ namespace BoDi
         /// </summary>
         event Action<object> ObjectCreated;
 
-    IObjectContainer BaseContainer { get; }
+    IReadOnlyList<IObjectContainer> GetContainerStack();
 
     IRegistry Registry { get; }
 

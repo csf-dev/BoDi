@@ -54,11 +54,11 @@ namespace BoDi
 
       this.baseContainer = baseContainer;
 
-      var containers = GetContainers();
+      var containers = GetContainerStack();
 
       this.servicePool = servicePool ?? new InstanceCache();
       this.serviceCache = serviceCache ?? new InstanceCache();
-      this.resolver = resolver?? new Resolver(containers, instancePool: this.servicePool, serviceCache: this.serviceCache);
+      this.resolver = resolver?? new Resolver(containers, serviceCache: this.serviceCache);
 
       this.resolver.ObjectCreated += OnObjectCreated;
 
@@ -269,18 +269,18 @@ namespace BoDi
         throw new ObjectContainerException("Object container disposed", null);
     }
 
-    IReadOnlyList<IObjectContainer> GetContainers()
+    public IReadOnlyList<IObjectContainer> GetContainerStack()
     {
-      return GetContainers(this).ToArray();
-    }
+      IEnumerable<IObjectContainer> output = new [] { this };
 
-    IEnumerable<IObjectContainer> GetContainers(IObjectContainer currentContainer)
-    {
-      while(currentContainer != null)
+      if(baseContainer != null)
       {
-        yield return currentContainer;
-        currentContainer = currentContainer.BaseContainer;
+        var baseStack = baseContainer.GetContainerStack();
+        if(baseStack != null)
+          output = output.Union(baseStack);
       }
+
+      return output.ToArray();
     }
 
     void OnObjectCreated(object obj)
@@ -296,6 +296,7 @@ namespace BoDi
         {
           registry.Dispose();
           resolver.Dispose();
+          servicePool.Dispose();
         }
 
         isDisposed = true;
