@@ -53,7 +53,6 @@
     <Compile Include="ObjectContainerException.cs" />
     <Compile Include="IObjectContainer.cs" />
     <Compile Include="ObjectContainer.cs" />
-    <Compile Include="Kernel\NonDisposableWrapper.cs" />
     <Compile Include="Registrations\FactoryRegistration.cs" />
     <Compile Include="Registrations\InstanceRegistration.cs" />
     <Compile Include="Registrations\IRegistration.cs" />
@@ -77,9 +76,15 @@
     <Compile Include="Resolution\Resolver.cs" />
     <Compile Include="Registrations\NamedInstanceDictionaryRegistryProxy.cs" />
     <Compile Include="Registrations\RegistrationFactory.cs" />
+    <Compile Include="Resolution\NonDisposableWrapper.cs" />
+    <Compile Include="Resolution\InstanceCache.cs" />
+    <Compile Include="Resolution\ICachesResolvedServices.cs" />
+    <Compile Include="Resolution\IPoolsServiceInstances.cs" />
+    <Compile Include="Resolution\IFactoryAdapter.cs" />
+    <Compile Include="Resolution\DelegateFactoryAdapter.cs" />
+    <Compile Include="Resolution\ConstructorFactoryAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Kernel\" />
     <Folder Include="Registrations\" />
     <Folder Include="Config\" />
     <Folder Include="Resolution\" />

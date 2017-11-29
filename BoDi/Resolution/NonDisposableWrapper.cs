@@ -11,21 +11,15 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using BoDi.Resolution;
-
-namespace BoDi.Registrations
+namespace BoDi.Resolution
 {
-  public abstract class Registration : IRegistration
+  public class NonDisposableWrapper
   {
-    RegistrationKey key;
+    public object Object { get; private set; }
 
-    public virtual RegistrationKey Key => key;
-
-    public abstract object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath);
-
-    public Registration(RegistrationKey key)
+    public NonDisposableWrapper(object obj)
     {
-      this.key = key;
+      Object = obj;
     }
   }
 }

@@ -11,21 +11,31 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using BoDi.Resolution;
+using System.Collections.Generic;
+using System.Reflection;
 
-namespace BoDi.Registrations
+namespace BoDi.Resolution
 {
-  public abstract class Registration : IRegistration
+  public class ConstructorFactoryAdapter : IFactoryAdapter
   {
-    RegistrationKey key;
+    readonly ConstructorInfo ctor;
 
-    public virtual RegistrationKey Key => key;
-
-    public abstract object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath);
-
-    public Registration(RegistrationKey key)
+    public ConstructorFactoryAdapter(ConstructorInfo ctor)
     {
-      this.key = key;
+      if(ctor == null)
+        throw new ArgumentNullException(nameof(ctor));
+
+      this.ctor = ctor;
+    }
+
+    public object CreateObject(object[] parameters)
+    {
+      return ctor.Invoke(parameters);
+    }
+
+    public IReadOnlyList<ParameterInfo> GetParameters()
+    {
+      return ctor.GetParameters();
     }
   }
 }

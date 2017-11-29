@@ -13,7 +13,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BoDi.Kernel;
 using BoDi.Resolution;
 
 namespace BoDi.Registrations
@@ -29,20 +28,20 @@ namespace BoDi.Registrations
       this.implementationType = implementationType;
     }
 
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
+    public override object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       var typeToConstruct = GetTypeToConstruct(keyToResolve);
 
       var pooledObjectKey = new RegistrationKey(typeToConstruct, keyToResolve.Name);
-      object obj = container.GetPooledObject(pooledObjectKey);
+      object obj = container.ServicePool.GetOrReturnNull(pooledObjectKey);
 
       if (obj == null)
       {
         if (typeToConstruct.IsInterface)
           throw new ObjectContainerException("Interface cannot be resolved: " + keyToResolve, resolutionPath.GetTypes());
 
-        obj = container.CreateObject(typeToConstruct, resolutionPath, keyToResolve);
-        container.objectPool.Add(pooledObjectKey, obj);
+        obj = container.Resolver.Resolve(typeToConstruct, resolutionPath, keyToResolve);
+        container.ServicePool.Add(pooledObjectKey, obj);
       }
 
       return obj;

@@ -18,12 +18,14 @@ namespace BoDi.Registrations
 {
   public class Registry : IRegistry
   {
+    bool isDisposed;
     readonly Dictionary<RegistrationKey,IRegistration> registrations;
 
     public void Add(IRegistration registration)
     {
       if(registration == null)
         throw new ArgumentNullException(nameof(registration));
+      AssertNotDisposed();
 
       registrations[registration.Key] = registration;
     }
@@ -32,6 +34,7 @@ namespace BoDi.Registrations
     {
       if(registration == null)
         throw new ArgumentNullException(nameof(registration));
+      AssertNotDisposed();
 
       if(!HasRegistration(registration.Key))
       {
@@ -41,6 +44,8 @@ namespace BoDi.Registrations
 
     public IRegistration Get(RegistrationKey key)
     {
+      AssertNotDisposed();
+
       IRegistration output;
       if(registrations.TryGetValue(key, out output))
         return output;
@@ -50,6 +55,7 @@ namespace BoDi.Registrations
 
     public IReadOnlyCollection<IRegistration> GetAll()
     {
+      AssertNotDisposed();
       return registrations.Values.ToArray();
     }
 
@@ -57,23 +63,51 @@ namespace BoDi.Registrations
     {
       if(ofType == null)
         throw new ArgumentNullException(nameof(ofType));
-      
+      AssertNotDisposed();
+
       return GetAll().Where(x => x.Key.Type == ofType).ToArray();
     }
 
     public bool HasRegistration(RegistrationKey key)
     {
+      AssertNotDisposed();
       return registrations.ContainsKey(key);
     }
 
     public void Remove(RegistrationKey key)
     {
+      AssertNotDisposed();
       registrations.Remove(key);
     }
 
     public void RemoveAll()
     {
+      AssertNotDisposed();
       registrations.Clear();
+    }
+
+    void AssertNotDisposed()
+    {
+      if(isDisposed)
+        throw new InvalidOperationException("The registry must not be disposed");
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if(!isDisposed)
+      {
+        if(disposing)
+        {
+          registrations.Clear();
+        }
+
+        isDisposed = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
     }
 
     public Registry()

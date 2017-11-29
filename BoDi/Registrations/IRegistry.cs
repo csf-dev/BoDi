@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace BoDi.Registrations
 {
-  public interface IRegistry
+  public interface IRegistry : IDisposable
   {
     void Add(IRegistration registration);
 

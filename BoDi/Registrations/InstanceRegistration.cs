@@ -24,7 +24,7 @@ namespace BoDi.Registrations
       this.instance = instance;
     }
 
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
+    public override object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       return instance;
     }

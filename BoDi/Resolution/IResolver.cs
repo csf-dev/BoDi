@@ -15,8 +15,14 @@ using BoDi.Registrations;
 
 namespace BoDi.Resolution
 {
-  public interface IResolver
+  public interface IResolver : IDisposable
   {
+    event Action<object> ObjectCreated;
+
     object Resolve(RegistrationKey key);
+
+    object Resolve(Delegate objectFactory, ResolutionPath resolutionPath, RegistrationKey keyToResolve);
+
+    object Resolve(Type type, ResolutionPath resolutionPath, RegistrationKey keyToResolve);
   }
 }

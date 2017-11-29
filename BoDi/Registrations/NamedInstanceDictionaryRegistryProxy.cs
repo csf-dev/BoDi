@@ -17,6 +17,7 @@ namespace BoDi.Registrations
 {
   public class NamedInstanceDictionaryRegistryProxy : IRegistry
   {
+    bool isDisposed;
     readonly IRegistry proxiedInstance;
     readonly IRegistrationFactory registrationFactory;
 
@@ -75,6 +76,24 @@ namespace BoDi.Registrations
     public void RemoveAll()
     {
       proxiedInstance.RemoveAll();
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if(!isDisposed)
+      {
+        if(disposing)
+        {
+          proxiedInstance.Dispose();
+        }
+
+        isDisposed = true;
+      }
+    }
+
+    public void Dispose()
+    {
+      Dispose(true);
     }
 
     public NamedInstanceDictionaryRegistryProxy(IRegistry proxiedInstance = null,
