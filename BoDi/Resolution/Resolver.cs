@@ -34,7 +34,8 @@ namespace BoDi.Resolution
     public object Resolve(RegistrationKey key)
     {
       AssertNotDisposed();
-      throw new NotImplementedException();
+      var path = new ResolutionPath();
+      return Resolve(key.Type, path, key.Name);
     }
 
     public object Resolve(Delegate objectFactory, ResolutionPath resolutionPath, RegistrationKey keyToResolve)

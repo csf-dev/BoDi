@@ -75,8 +75,6 @@ namespace BoDi.Resolution
 
       public RegistrationKeyAndResolvedType(RegistrationKey key, Type resolvedType)
       {
-        if(resolvedType == null)
-          throw new ArgumentNullException(nameof(resolvedType));
         Key = key;
         ResolvedType = resolvedType;
       }
