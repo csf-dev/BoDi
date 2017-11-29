@@ -8,7 +8,7 @@ using Should;
 namespace BoDi.Tests
 {
     [TestFixture]
-    public class NamedRegistrationTests
+    public class DictionaryOfNamedInstancesRegistrationTests
     {
         [Test]
         public void ShouldBeAbleToRegisterTypeWithName()

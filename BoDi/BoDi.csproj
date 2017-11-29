@@ -53,12 +53,10 @@
     <Compile Include="ObjectContainerException.cs" />
     <Compile Include="IObjectContainer.cs" />
     <Compile Include="ObjectContainer.cs" />
-    <Compile Include="Kernel\ResolutionList.cs" />
-    <Compile Include="Kernel\NonDisposableWrapper.cs" />
     <Compile Include="Registrations\FactoryRegistration.cs" />
     <Compile Include="Registrations\InstanceRegistration.cs" />
     <Compile Include="Registrations\IRegistration.cs" />
-    <Compile Include="Registrations\NamedInstanceDictionaryRegistration.cs" />
+    <Compile Include="Registrations\DictionaryOfNamedInstancesRegistration.cs" />
     <Compile Include="Registrations\TypeRegistration.cs" />
     <Compile Include="Config\ContainerRegistrationCollection.cs" />
     <Compile Include="Config\ContainerRegistrationConfigElement.cs" />
@@ -69,11 +67,27 @@
     <Compile Include="Registrations\RegistrationKey.cs" />
     <Compile Include="Registrations\Registration.cs" />
     <Compile Include="Config\IProvidesTypeRegistrationsFromConfiguration.cs" />
+    <Compile Include="Registrations\IRegistry.cs" />
+    <Compile Include="Registrations\Registry.cs" />
+    <Compile Include="Registrations\IRegistrationFactory.cs" />
+    <Compile Include="Resolution\IResolver.cs" />
+    <Compile Include="Resolution\ResolutionPath.cs" />
+    <Compile Include="Resolution\OwnedRegistration.cs" />
+    <Compile Include="Resolution\Resolver.cs" />
+    <Compile Include="Registrations\NamedInstanceDictionaryRegistryProxy.cs" />
+    <Compile Include="Registrations\RegistrationFactory.cs" />
+    <Compile Include="Resolution\NonDisposableWrapper.cs" />
+    <Compile Include="Resolution\InstanceCache.cs" />
+    <Compile Include="Resolution\ICachesResolvedServices.cs" />
+    <Compile Include="Resolution\IPoolsServiceInstances.cs" />
+    <Compile Include="Resolution\IFactoryAdapter.cs" />
+    <Compile Include="Resolution\DelegateFactoryAdapter.cs" />
+    <Compile Include="Resolution\ConstructorFactoryAdapter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Kernel\" />
     <Folder Include="Registrations\" />
     <Folder Include="Config\" />
+    <Folder Include="Resolution\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

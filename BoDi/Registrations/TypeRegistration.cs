@@ -11,7 +11,9 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using BoDi.Kernel;
+using System.Collections.Generic;
+using System.Linq;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
@@ -21,26 +23,34 @@ namespace BoDi.Registrations
 
     public TypeRegistration(Type implementationType, RegistrationKey key) : base(key)
     {
+      AssertValid(implementationType, key.Type);
+
       this.implementationType = implementationType;
     }
 
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       var typeToConstruct = GetTypeToConstruct(keyToResolve);
 
       var pooledObjectKey = new RegistrationKey(typeToConstruct, keyToResolve.Name);
-      object obj = container.GetPooledObject(pooledObjectKey);
+      object obj = container.ServicePool.GetOrReturnNull(pooledObjectKey);
 
       if (obj == null)
       {
         if (typeToConstruct.IsInterface)
-          throw new ObjectContainerException("Interface cannot be resolved: " + keyToResolve, resolutionPath.ToTypeList());
+          throw new ObjectContainerException("Interface cannot be resolved: " + keyToResolve, resolutionPath.GetTypes());
 
-        obj = container.CreateObject(typeToConstruct, resolutionPath, keyToResolve);
-        container.objectPool.Add(pooledObjectKey, obj);
+        obj = container.Resolver.Resolve(typeToConstruct, resolutionPath, keyToResolve);
+        container.ServicePool.Add(pooledObjectKey, obj);
       }
 
       return obj;
+    }
+
+    void AssertValid(Type concreteType, Type asType)
+    {
+      if(!IsValid(concreteType, asType))
+        throw new InvalidOperationException("type mapping is not valid");
     }
 
     private Type GetTypeToConstruct(RegistrationKey keyToResolve)
@@ -58,5 +68,33 @@ namespace BoDi.Registrations
     {
       return "Type: " + implementationType.FullName;
     }
+
+    public static bool IsValid(Type concreteType, Type asType)
+    {
+      if(asType == null) return false;
+      if(concreteType == null) return false;
+
+      if(asType.IsAssignableFrom(concreteType))
+        return true;
+
+      if(asType.IsGenericTypeDefinition && concreteType.IsGenericTypeDefinition)
+      {
+        var baseTypes = GetBaseTypes(concreteType).ToArray();
+        return baseTypes.Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == asType);
+      }
+
+      return false;
+    }
+
+    static IEnumerable<Type> GetBaseTypes(Type type)
+    {
+      if(type.BaseType == null) return type.GetInterfaces();
+
+      return Enumerable.Repeat(type.BaseType, 1)
+                       .Concat(type.GetInterfaces())
+                       .Concat(type.GetInterfaces().SelectMany(GetBaseTypes))
+                       .Concat(GetBaseTypes(type.BaseType));
+    }
+
   }
 }

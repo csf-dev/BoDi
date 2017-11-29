@@ -15,34 +15,35 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using BoDi.Kernel;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
 
-  public class NamedInstanceDictionaryRegistration : Registration
+  public class DictionaryOfNamedInstancesRegistration : Registration
   {
-    public override object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath)
+    public override object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath)
     {
       var typeToResolve = keyToResolve.Type;
       Debug.Assert(typeToResolve.IsGenericType && typeToResolve.GetGenericTypeDefinition() == typeof(IDictionary<,>));
 
       var genericArguments = typeToResolve.GetGenericArguments();
+      var output = CreateGenericDictionary(genericArguments);
       var keyType = genericArguments[0];
       var targetType = genericArguments[1];
-      var result = (IDictionary)Activator.CreateInstance(typeof (Dictionary<,>).MakeGenericType(genericArguments));
+      var matchingRegistrationKeys = GetMatchingRegistrationKeys(targetType, container);
 
-      foreach (var namedRegistration in container.registrations.Where(r => r.Key.Name != null && r.Key.Type == targetType).Select(r => r.Key).ToList())
+      foreach (var key in matchingRegistrationKeys)
       {
-        var convertedKey = ChangeType(namedRegistration.Name, keyType);
+        var convertedKey = ChangeType(key.Name, keyType);
         Debug.Assert(convertedKey != null);
-        result.Add(convertedKey, container.Resolve(namedRegistration.Type, namedRegistration.Name));
+        output.Add(convertedKey, container.Resolve(key.Type, key.Name));
       }
 
-      return result;
+      return output;
     }
 
-    private object ChangeType(string name, Type keyType)
+    object ChangeType(string name, Type keyType)
     {
       if (keyType.IsEnum)
         return Enum.Parse(keyType, name, true);
@@ -51,6 +52,20 @@ namespace BoDi.Registrations
       return name;
     }
 
-    public NamedInstanceDictionaryRegistration(RegistrationKey key) : base(key) {}
+    IDictionary CreateGenericDictionary(Type[] genericArguments)
+    {
+      return (IDictionary) Activator.CreateInstance(typeof (Dictionary<,>).MakeGenericType(genericArguments));
+    }
+
+    IReadOnlyCollection<RegistrationKey> GetMatchingRegistrationKeys(Type targetType, IObjectContainer container)
+    {
+      return container.Registry
+        .GetAll(targetType)
+        .Where(x => x.Key.Name != null)
+        .Select(x => x.Key)
+        .ToArray();
+    }
+
+    public DictionaryOfNamedInstancesRegistration(RegistrationKey key) : base(key) {}
   }
 }

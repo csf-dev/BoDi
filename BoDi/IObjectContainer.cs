@@ -13,6 +13,8 @@
 
 using System;
 using System.Collections.Generic;
+using BoDi.Registrations;
+using BoDi.Resolution;
 
 namespace BoDi
 {
@@ -22,6 +24,14 @@ namespace BoDi
         /// Fired when a new object is created directly by the container. It is not invoked for resolving instance and factory registrations.
         /// </summary>
         event Action<object> ObjectCreated;
+
+    IObjectContainer BaseContainer { get; }
+
+    IRegistry Registry { get; }
+
+    IResolver Resolver { get; }
+
+    IPoolsServiceInstances ServicePool { get; }
 
         /// <summary>
         /// Registers a type as the desired implementation type of an interface.

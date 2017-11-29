@@ -11,7 +11,7 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
 // DEALINGS IN THE SOFTWARE.
 using System;
-using BoDi.Kernel;
+using BoDi.Resolution;
 
 namespace BoDi.Registrations
 {
@@ -19,6 +19,6 @@ namespace BoDi.Registrations
   {
     RegistrationKey Key { get; }
 
-    object Resolve(ObjectContainer container, RegistrationKey keyToResolve, ResolutionList resolutionPath);
+    object Resolve(IObjectContainer container, RegistrationKey keyToResolve, ResolutionPath resolutionPath);
   }
 }
