@@ -83,12 +83,12 @@ namespace BoDi.Tests
             Assert.AreNotEqual(obj, baseObj);
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
-        public void BaseContainerMustBeAnObjectContainer()
+        [Test]
+        public void ContainerConstructorDoesNotRaiseAnExceptionWhenBaseContainerIsNotAConcreteObjectContainer()
         {
             var otherContainer = new Mock<IObjectContainer>();
 
-            var container = new ObjectContainer(otherContainer.Object);
+            Assert.DoesNotThrow(() => new ObjectContainer(otherContainer.Object));
         }
 
         [Test]
