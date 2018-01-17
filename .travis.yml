@@ -1,9 +1,0 @@
-language: csharp
-solution: CSF.MicroDi.sln
-
-install:
-  - tools/install.sh
-
-script:
-  - msbuild /p:Configuration=Debug CSF.MicroDi.sln
-  - tools/run-tests.sh
